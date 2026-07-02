@@ -252,7 +252,7 @@ p+p{margin-top:16px}
 
     <div style="background:var(--navy);border-radius:16px;padding:40px;color:var(--cream)">
       <div style="font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted-n);margin-bottom:20px">Initial Deposit · Due Upon Signing</div>
-      <div style="font-family:'Playfair Display',serif;font-size:42px;color:var(--cream);line-height:1;margin-bottom:6px">Upon Signing</div>
+      <div style="font-family:'Playfair Display',serif;font-size:42px;color:var(--cream);line-height:1;margin-bottom:6px" id="dyn-initial-amount">—</div>
       <div style="font-size:14px;color:var(--muted-n);margin-bottom:28px">Bank transfer or bank cheque only</div>
       <div style="border-top:1px solid var(--line-n);padding-top:24px;display:flex;flex-direction:column;gap:12px">
         <div style="display:flex;align-items:baseline">
@@ -365,8 +365,8 @@ p+p{margin-top:16px}
     <div class="faq-item">
       <div class="faq-q">What if the building & pest report finds issues?</div>
       <div class="faq-a">
-        <p>A building and pest report almost always finds something — that's normal. The question is whether the issues are <strong>significant enough</strong> to affect your decision or negotiate on price.</p>
-        <p>Share the report with your solicitor and discuss your options before the B&P period expires. You may be able to request repairs, a price reduction, or terminate the contract depending on the findings.</p>
+        <p>A building and pest report almost always finds something — that's normal. The question is whether the issues are <strong>significant enough</strong> to affect your decision.</p>
+        <p>Share the report with your solicitor and discuss your options before the B&P period expires.</p>
       </div>
     </div>
 
@@ -557,6 +557,12 @@ p+p{margin-top:16px}
       <input type="text" id="ep-unconditional" placeholder="e.g. 15 Aug 2025">
     </div>
 
+    <div class="ep-divider">Deposit</div>
+    <div class="ep-group">
+      <label>Initial Deposit Amount</label>
+      <input type="text" id="ep-initial-amount" placeholder="e.g. $10,000">
+    </div>
+
     <div class="ep-divider">Balance Deposit</div>
     <div class="ep-group">
       <label>Balance Amount</label>
@@ -634,7 +640,7 @@ function applyAgents(idxs){
   buildContactCard(a1, a2);
 }
 
-function applyConditions(finance, bp, unconditional, balanceAmount, balanceDue){
+function applyConditions(finance, bp, unconditional, balanceAmount, balanceDue, initialAmount){
   setText('dyn-finance-badge', finance ? `${finance} days` : '— days');
   setText('dyn-bp-badge', bp ? `${bp} days` : '— days');
   setText('dyn-unconditional-badge', unconditional || 'Date TBC');
@@ -643,6 +649,7 @@ function applyConditions(finance, bp, unconditional, balanceAmount, balanceDue){
   setText('tl-unconditional-label', unconditional ? unconditional : 'Unconditional date');
   setText('dyn-balance-amount', balanceAmount || '—');
   setText('dyn-balance-due', balanceDue ? `Due: ${balanceDue}` : 'Due date to be confirmed');
+  setText('dyn-initial-amount', initialAmount || '—');
 }
 
 document.addEventListener('DOMContentLoaded', function(){
@@ -678,6 +685,7 @@ document.addEventListener('DOMContentLoaded', function(){
     const unconditional = p.get('unconditional') || '';
     const balanceAmount = p.get('balanceAmount') || '';
     const balanceDue  = p.get('balanceDue') || '';
+    const initialAmount = p.get('initialAmount') || '';
 
     if(address){
       const parts = address.match(/^(\d+\S*)\s+(.+)$/);
@@ -685,7 +693,7 @@ document.addEventListener('DOMContentLoaded', function(){
     }
     if(suburb) setText('dyn-suburb', suburb);
     applyAgents(agentIdxs);
-    applyConditions(finance, bp, unconditional, balanceAmount, balanceDue);
+    applyConditions(finance, bp, unconditional, balanceAmount, balanceDue, initialAmount);
     return;
   }
 
@@ -726,13 +734,14 @@ document.addEventListener('DOMContentLoaded', function(){
     const unconditional = document.getElementById('ep-unconditional').value.trim();
     const balanceAmount = document.getElementById('ep-balance-amount').value.trim();
     const balanceDue    = document.getElementById('ep-balance-due').value.trim();
+    const initialAmount = document.getElementById('ep-initial-amount').value.trim();
     const agentIdxs     = checked.map(cb => +cb.dataset.idx);
 
     const parts = address.match(/^(\d+\S*)\s+(.+)$/);
     setText('dyn-address', parts ? `${parts[1]}<br>${parts[2]}` : address, true);
     setText('dyn-suburb', suburb);
     applyAgents(agentIdxs);
-    applyConditions(finance, bp, unconditional, balanceAmount, balanceDue);
+    applyConditions(finance, bp, unconditional, balanceAmount, balanceDue, initialAmount);
 
     document.getElementById('editPanel').classList.remove('open');
     window.scrollTo({top:0, behavior:'smooth'});
@@ -747,10 +756,11 @@ document.addEventListener('DOMContentLoaded', function(){
     const unconditional = document.getElementById('ep-unconditional').value.trim();
     const balanceAmount = document.getElementById('ep-balance-amount').value.trim();
     const balanceDue    = document.getElementById('ep-balance-due').value.trim();
+    const initialAmount = document.getElementById('ep-initial-amount').value.trim();
     const agents        = checked.map(cb => cb.dataset.idx).join(',');
 
     const base   = window.location.origin + window.location.pathname;
-    const params = new URLSearchParams({ share:'1', address, suburb, agents, finance, bp, unconditional, balanceAmount, balanceDue });
+    const params = new URLSearchParams({ share:'1', address, suburb, agents, finance, bp, unconditional, balanceAmount, balanceDue, initialAmount });
     const url    = `${base}?${params}`;
 
     navigator.clipboard.writeText(url).then(()=>{
